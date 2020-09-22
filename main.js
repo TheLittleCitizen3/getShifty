@@ -1,5 +1,6 @@
 function renderBoard(matrix){
     var board = document.getElementById("board");
+    board.innerHTML = '';
     matrix.forEach((matrixRow,i) => {
         var row = document.createElement("div");
         row.className = "row";
@@ -11,7 +12,7 @@ function renderBoard(matrix){
             box.addEventListener('click',function() {
                 changeNumber(this.id);
             });
-            box.style.backgroundColor ="red";
+            box.style.border ="4px solid red";
             box.innerHTML = cube;
             row.appendChild(box);
         });
@@ -91,24 +92,54 @@ function checkBoard() {
             }
         })
     })
-    console.log((score === 8) ? "win" : score);
+    if(score === 8){
+        onWin();
+    };
 }
 
 function changeBoxStatus(boxIndex,color) {
     var b = document.getElementById(boxIndex);
-    b.style.backgroundColor = color
+    b.style.border ="4px solid " + color
+}
+
+function checkSolvableBoard(numbers) {
+    let smallerNum = 0;
+    numbers.forEach((number,i) =>{
+        if(number)
+        {
+            for (let j = i+1; j < numbers.length; j++) {
+                if(numbers[j]){
+                    smallerNum += (number > numbers[j]) ? 1 : 0;
+                }
+            }
+        }
+    });
+    console.log(smallerNum);
+    return smallerNum % 2 === 0
 }
 
 var matrix = Array.from(Array(3),()=> new Array(3));
-var numbers = [1,2,3,4,5,6,7,8,9];
-var missinNumber = getRndInteger(0,8);
-shuffleArray(numbers);
-numbers[missinNumber] = null;
+var numbers =[];
+
+do {
+    numbers = [1,2,3,4,5,6,7,8,9];
+    var missinNumber = getRndInteger(0,8);
+    shuffleArray(numbers);
+    numbers[missinNumber] = null;
+} while (!checkSolvableBoard(numbers));
 
 for (let i = 0; i < 9; i++) {
     let row = Math.floor(i/3);
     let col = i %3;
     matrix[row][col] = numbers[i];
+}
+
+function onWin() {
+    let userTextArea = document.getElementById("userStatus");
+    userTextArea.innerText = '';
+    var winHeadline = document.createElement("h1");
+    winHeadline.innerHTML = "you won!";
+    userTextArea.appendChild(winHeadline);
 }
 
 renderBoard(matrix);
